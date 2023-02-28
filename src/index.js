@@ -1,14 +1,14 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const axios = require('axios');
+const core = require("@actions/core");
+const github = require("@actions/github");
+const axios = require("axios");
 
 async function main() {
-  const githubToken = core.getInput('github_token');
-  const org = core.getInput('org');
-  const repo = core.getInput('repo');
-  const teamSlug = core.getInput('team_slug');
-  const slackToken = core.getInput('slack_token');
-  const slackChannel = core.getInput('slack_channel');
+  const githubToken = core.getInput("github_token");
+  const org = core.getInput("org");
+  const repo = core.getInput("repo");
+  const teamSlug = core.getInput("team_slug");
+  const slackToken = core.getInput("slack_token");
+  const slackChannel = core.getInput("slack_channel");
 
   const octokit = github.getOctokit(githubToken);
 
@@ -55,29 +55,31 @@ async function main() {
     return 0;
   });
 
-  core.setOutput('stats', JSON.stringify(searchResults));
+  core.setOutput("stats", JSON.stringify(searchResults));
 
-  let memberLines = '';
+  let memberLines = "";
 
-  searchResults.forEach((member) => { memberLines += `<https://github.com/search?q=repo:${org}/${repo}+author:${member.member}+is:pr+is:open+draft:false|${member.member}> : ${member.count}\n`; });
+  searchResults.forEach((member) => {
+    memberLines += `<https://github.com/search?q=repo:${org}/${repo}+author:${member.member}+is:pr+is:open+draft:false|${member.member}> : ${member.count}\n`;
+  });
 
   const postMessageBody = {
     channel: slackChannel,
     blocks: [
       {
-        type: 'section',
+        type: "section",
         text: {
-          type: 'mrkdwn',
+          type: "mrkdwn",
           text: `Open Pull Requests in *${org}/${repo}* :rocket:`,
         },
       },
       {
-        type: 'divider',
+        type: "divider",
       },
       {
-        type: 'section',
+        type: "section",
         text: {
-          type: 'mrkdwn',
+          type: "mrkdwn",
           text: memberLines,
         },
       },
@@ -85,8 +87,8 @@ async function main() {
   };
 
   axios({
-    method: 'post',
-    url: 'https://slack.com/api/chat.postMessage',
+    method: "post",
+    url: "https://slack.com/api/chat.postMessage",
     headers: { Authorization: `Bearer ${slackToken}` },
     data: postMessageBody,
   })
