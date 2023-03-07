@@ -113,5 +113,5 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 
-SECRETS.txt
+secrets.data
 node_modules

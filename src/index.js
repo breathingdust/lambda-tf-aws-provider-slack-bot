@@ -4,29 +4,30 @@ const axios = require("axios");
 
 async function main() {
   const githubToken = core.getInput("github_token");
-  const org = core.getInput("org");
-  const repo = core.getInput("repo");
   const teamSlug = core.getInput("team_slug");
   const slackToken = core.getInput("slack_token");
   const slackChannel = core.getInput("slack_channel");
+
+  const [org, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
   const octokit = github.getOctokit(githubToken);
 
   let membersResponse = [];
   try {
-    membersResponse = await octokit.teams.listMembersInOrg({
+    membersResponse = await octokit.rest.teams.listMembersInOrg({
       org,
       team_slug: teamSlug,
     });
   } catch (error) {
     core.setFailed(`Getting members for '${org}' failed with error ${error}`);
+    throw error;
   }
 
   core.info(`Found ${membersResponse.data.length} AWS team members.`);
 
   const searchQueries = membersResponse.data.map(async (member) => {
-    const response = await octokit.search.issuesAndPullRequests({
-      q: `is:pr is:open author:${member.login} draft:false repo:${org}/${repo}`,
+    const response = await octokit.rest.search.issuesAndPullRequests({
+      q: `is:pr is:open author:${member.login} draft:false org:${org} repo: ${repo}`,
     });
 
     return {
@@ -42,6 +43,8 @@ async function main() {
     core.setFailed(`Getting search results failed with error ${error}`);
   }
 
+  searchResults = searchResults.filter(member => member.count > 0);
+
   searchResults.sort((a, b) => {
     const nameA = a.member.toUpperCase();
     const nameB = b.member.toUpperCase();
@@ -55,12 +58,10 @@ async function main() {
     return 0;
   });
 
-  core.setOutput("stats", JSON.stringify(searchResults));
-
   let memberLines = "";
 
   searchResults.forEach((member) => {
-    memberLines += `<https://github.com/search?q=repo:${org}/${repo}+author:${member.member}+is:pr+is:open+draft:false|${member.member}> : ${member.count}\n`;
+    memberLines += `< https://github.com/search?q=repo:${org}/${repo}+author:${member.member}+is:pr+is:open+draft:false|${member.member}> : ${member.count}\n`;
   });
 
   const postMessageBody = {

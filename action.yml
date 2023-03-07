@@ -4,9 +4,6 @@ inputs:
   github_token:
     description: 'A valid github token for the organization'
     required: true
-  org:
-    description: 'The organization to use.'
-    required: true
   team_slug:
     description: The team slug whose members you want to information for.
     required: true
