@@ -8,7 +8,7 @@ async function main() {
   const slackToken = core.getInput("slack_token");
   const slackChannel = core.getInput("slack_channel");
 
-  const [org, repo] = process.env.GITHUB_REPOSITORY.split('/');
+  const [org, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
   const octokit = github.getOctokit(githubToken);
 
@@ -43,7 +43,7 @@ async function main() {
     core.setFailed(`Getting search results failed with error ${error}`);
   }
 
-  searchResults = searchResults.filter(member => member.count > 0);
+  searchResults = searchResults.filter((member) => member.count > 0);
 
   searchResults.sort((a, b) => {
     const nameA = a.member.toUpperCase();
