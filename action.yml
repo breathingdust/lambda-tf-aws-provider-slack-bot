@@ -13,9 +13,6 @@ inputs:
   slack_channel:
     description: Channel identifier
     required: true
-outputs:
-  stats:
-    description: 'json object describing results.'
 runs:
   using: 'node16'
   main: 'dist/index.js'
