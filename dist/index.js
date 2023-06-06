@@ -17465,7 +17465,7 @@ async function main() {
 
   const searchQueries = membersResponse.data.map(async (member) => {
     const response = await octokit.rest.search.issuesAndPullRequests({
-      q: `is:pr is:open author:${member.login} draft:false org:${org} repo: ${repo}`,
+      q: `is:pr is:open author:${member.login} draft:false org:${org} repo:${repo}`,
     });
 
     return {
@@ -17480,6 +17480,8 @@ async function main() {
   } catch (error) {
     core.setFailed(`Getting search results failed with error ${error}`);
   }
+
+  core.info(`Team Results: ${JSON.stringify(searchResults)}.`);
 
   searchResults = searchResults.filter((member) => member.count > 0);
 
