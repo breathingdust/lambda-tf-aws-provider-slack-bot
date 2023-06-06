@@ -27,7 +27,7 @@ async function main() {
 
   const searchQueries = membersResponse.data.map(async (member) => {
     const response = await octokit.rest.search.issuesAndPullRequests({
-      q: `is:pr is:open author:${member.login} draft:false org:${org} repo: ${repo}`,
+      q: `is:pr is:open author:${member.login} draft:false org:${org} repo:${repo}`,
     });
 
     return {
@@ -42,6 +42,8 @@ async function main() {
   } catch (error) {
     core.setFailed(`Getting search results failed with error ${error}`);
   }
+
+  core.info(`Team Results: ${JSON.stringify(searchResults)}.`);
 
   searchResults = searchResults.filter((member) => member.count > 0);
 
@@ -65,7 +67,7 @@ async function main() {
   });
 
   const postMessageBody = {
-    channel: slackChannel,
+    channel: 'slackChannel',
     blocks: [
       {
         type: "section",
@@ -87,19 +89,19 @@ async function main() {
     ],
   };
 
-  axios({
-    method: "post",
-    url: "https://slack.com/api/chat.postMessage",
-    headers: { Authorization: `Bearer ${slackToken}` },
-    data: postMessageBody,
-  })
-    .then((res) => {
-      core.info(`Slack Response: ${res.statusCode}`);
-      core.info(res.data);
-    })
-    .catch((error) => {
-      core.setFailed(`Posting to slack failed with error ${error}`);
-    });
+  // axios({
+  //   method: "post",
+  //   url: "https://slack.com/api/chat.postMessage",
+  //   headers: { Authorization: `Bearer ${slackToken}` },
+  //   data: postMessageBody,
+  // })
+  //   .then((res) => {
+  //     core.info(`Slack Response: ${res.statusCode}`);
+  //     core.info(res.data);
+  //   })
+  //   .catch((error) => {
+  //     core.setFailed(`Posting to slack failed with error ${error}`);
+  //   });
 }
 
 try {
